@@ -9,18 +9,26 @@ GOOGLE_API_KEY = os.getenv('google_api_key')
 
 geolocater = GoogleV3(api_key=GOOGLE_API_KEY)
 
-df = pd.read_csv('places.csv')
-addresses = df[['LPST ID', 'Regulated Entity Number', 'place']]
+# Set the columns you want to use in the initial csv
+addressessColumns = []
+# Set the columns you want to carry over to your geocoded.csv and notFound.csv final documents
+finalColumnsGeoCoded = []
+finalColumnsNotFound = []
 
-geocoded=pd.DataFrame(columns=['LPST ID', 'Regulated Entity Number', 'lat', 'long'], index=[0])
-notFound=pd.DataFrame(columns=['LPST ID', 'Regulated Entity Number', 'address'], index=[0])
+df = pd.read_csv('places.csv')
+addresses = df[addressessColumns]
+
+geocoded=pd.DataFrame(columns=finalColumnsGeoCoded, index=[0])
+notFound=pd.DataFrame(columns=finalColumnsNotFound, index=[0])
 
 for index, address in enumerate(df['address']):
     location = geolocater.geocode(address)
     if(location):
-        geocoded.loc[len(geocoded.index)] = [addresses['LPST_ID'][index], addresses['Regulated_Entity_Number'][index], location.latitude, location.longitude]
+		# Enter your column names
+        geocoded.loc[len(geocoded.index)] = [addresses['LPST ID'][index], addresses['Regulated Entity Number'][index], location.latitude, location.longitude]
     else:
-        notFound.loc[len(notFound.index)] = [addresses['LPST_ID'][index], addresses['Regulated_Entity_Number'][index], address]
+        # Enter your column names
+        notFound.loc[len(notFound.index)] = [addresses['LPST ID'][index], addresses['Regulated_Entity Number'][index], address]
         
 geocoded.to_csv('geocoded_places.csv')
 notFound.to_csv('notFound.csv')
